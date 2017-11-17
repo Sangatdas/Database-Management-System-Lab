@@ -1,0 +1,144 @@
+SQL> select * from customer;
+
+   CUST_ID NAME       DATEOFPAYMENT	 SCHEME     ST
+---------- ---------- ------------------ ---------- --
+	 2 chinmay    27-AUG-17 	 Saving     N
+	 1 sangat     27-JUL-17 	 Saving     N
+
+
+SQL> declare
+diff number;
+id int;
+dop date;
+sc varchar(10);
+sch varchar(10);
+no_cust EXCEPTION;
+wrong_sch EXCEPTION;
+st varchar(10);
+begin
+id:=&id;
+sc:='&sc';
+if id>6 AND id<1 then
+RAISE no_cust;
+end if;
+select scheme,st,dateofpayment into sch,st,dop from customer where cust_id=id;
+if sch<>sc then
+RAISE wrong_sch;
+end if;
+select trunc(sysdate-dop) into diff from customer where cust_id=id;
+dbms_output.put_line(diff);
+
+if diff > 30 then
+insert into fine values(id,trunc(sysdate),150+(diff-30)*50);
+if st='N' then
+update customer set status='P' where cust_id=id;
+end if;
+
+elsif diff<30 AND diff>15 then
+insert into fine values(id,trunc(sysdate),5*diff);
+if st='N' then
+update customer set status='P' where cust_id=id;
+  2  
+end if;
+
+else 
+insert into fine values(id,trunc(sysdate),0);
+
+end if;
+
+EXCEPTION
+	WHEN DUP_VAL_ON_INDEX THEN
+	dbms_output.put_line('You have tried to insert a duplicate entry.');
+	WHEN no_cust THEN
+	dbms_output.put_line('Customer Does Not E  3  xist');
+	WHEN wrong_sch THEN
+	dbms_output.put_line('Entered Scheme is Wrong');   
+end;  4    5    6    7    8    9   10   11   12   13   14   15   16   17   18   19   20   21   22   23   24   25   26   27   28   29   30   31   32   33   34   35   36   37   38   39   40   41   42   43   44   45   46   47   48  
+ 49  /
+Enter value for id: 2
+old  11: id:=&id;
+new  11: id:=2;
+Enter value for sc: Saving
+old  12: sc:='&sc';
+new  12: sc:='Saving';
+
+PL/SQL procedure successfully completed.
+
+SQL> select * from fine;
+
+   CUST_ID DATE1		    FINE
+---------- ------------------ ----------
+	 2 07-SEP-17		       0
+
+SQL> select * from customer;
+
+   CUST_ID NAME       DATEOFPAYMENT	 SCHEME     ST
+---------- ---------- ------------------ ---------- --
+	 2 chinmay    27-AUG-17 	 Saving     N
+	 1 sangat     27-JUL-17 	 Saving     N
+
+SQL> declare                
+diff number;
+id int;
+dop date;
+sc varchar(10);
+sch varchar(10);
+no_cust EXCEPTION;
+wrong_sch EXCEPTION;
+st varchar(10);
+begin
+id:=&id;
+sc:='&sc';
+if id>6 AND id<1 then
+RAISE no_cust;
+end if;
+select scheme,st,dateofpayment into sch,st,dop from customer where cust_id=id;
+if sch<>sc then
+RAISE wrong_sch;
+end if;
+select trunc(sysdate-dop) into diff from customer where cust_id=id;
+dbms_output.put_line(diff);
+
+if diff > 30 then
+insert into fine values(id,trunc(sysdate),150+(diff-30)*50);
+if st='N' then
+update customer set status='P' where cust_id=id;
+end if;
+
+elsif diff<30 AND diff>15 then
+insert into fine values(id,trunc(sysdate),5*diff);
+if st='N' then
+update customer set status='P' where cust_id=id;
+
+end if;
+
+else 
+insert into fine values(id,trunc(sysdate),0);
+
+end if;
+
+EXCEPTION
+	WHEN DUP_VAL_ON_INDEX THEN
+	dbms_output.put_line('You have tried to insert a duplicate entry.');
+	WHEN no_cust THEN
+	dbms_output.put_line('Customer Does Not Exist');
+	WHEN wrong_sch THEN
+	dbms_output.put_line('Entered Scheme is Wrong');   
+end;  2    3    4    5    6    7    8    9   10   11   12   13   14   15   16   17   18   19   20   21   22   23   24   25   26   27   28   29   30   31   32   33   34   35   36   37   38   39   40   41   42   43   44   45   46   47   48  
+ 49  /
+Enter value for id: 1
+old  11: id:=&id;
+new  11: id:=1;
+Enter value for sc: Saving
+old  12: sc:='&sc';
+new  12: sc:='Saving';
+
+PL/SQL procedure successfully completed.
+
+SQL> select * from fine;
+
+   CUST_ID DATE1		    FINE
+---------- ------------------ ----------
+	 2 07-SEP-17		       0
+	 1 07-SEP-17		     750
+

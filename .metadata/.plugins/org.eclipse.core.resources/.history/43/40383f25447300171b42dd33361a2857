@@ -1,0 +1,125 @@
+
+import java.sql.*;
+import java.util.Scanner;
+
+public class index_view
+{
+ public static void main(String args[]) throws Exception
+ {
+     int flag=1,ch;
+     Scanner obj= new Scanner(System.in);
+     //Registering JDBC driver
+     String url= "jdbc:mysql://192.168.5.154:3306/";
+     String dbname= "te3165db";
+     String username= "te3165";
+     String password= "te3165";
+     
+     Class.forName("com.mysql.jdbc.Driver").newInstance();
+     
+     //Creating Connection
+     Connection conn = DriverManager.getConnection(url+dbname,username,password);
+     
+     //Creating Query
+     
+     Statement statement=conn.createStatement();
+     
+     while(flag==1)
+     {
+    	 System.out.println("1. Create table using sequencing\n2. Insert row\n3. Create View\n4. Create Index\n5. Drop index\n6. Drop view\n7. Exit");
+    	 int opt=obj.nextInt();
+    	 switch(opt)
+    	 {
+    	 case 1:
+    		 String query=new String("CREATE TABLE Student(ROLL_NO INT AUTO_INCREMENT,FIRSTNAME VARCHAR(20) NOT NULL,LASTNAME VARCHAR(20) NOT NULL,PRIMARY KEY(ROLL_NO));");
+    		 statement.execute(query);
+    		 break;
+    	 case 2:
+    		 String firstName,lastName;
+    		 System.out.println("Enter first name:- ");
+    		 firstName=new String(obj.next());
+    		 System.out.println("Enter last name:- ");
+    		 lastName=new String(obj.next());
+    		 query="INSERT INTO Student VALUES(null,'"+firstName+"','"+lastName+"')";
+    		 statement.execute(query);
+    		 query="SELECT * FROM Student";
+    		 ResultSet rs=statement.executeQuery(query);
+       		 while(rs.next())
+       		 {
+       			 int rollno=rs.getInt("ROLL_NO");
+       			 String fname=rs.getString("FIRSTNAME");
+       			 String lname=rs.getString("LASTNAME");
+       			 System.out.println("Roll no:- "+rollno+"\nName:- "+fname+" "+lname);
+       		 }
+
+    		 break;
+    	 case 3:
+    		 query="CREATE VIEW v1 AS SELECT FIRSTNAME,LASTNAME FROM Student";
+    		 statement.execute(query);
+       		 query="SELECT * FROM v1";
+       		 rs=statement.executeQuery(query);
+       		 while(rs.next())
+       		 {
+       			 String fname=rs.getString("FIRSTNAME");
+       			 String lname=rs.getString("LASTNAME");
+       			 System.out.println("Name:-"+fname+" "+lname);
+       		 }
+       		 break;
+    	 case 4:
+    		 query="CREATE INDEX si ON Student(FIRSTNAME)";
+    		 statement.execute(query);
+    		 query="CREATE UNIQUE INDEX ui ON Student(ROLL_NO)";
+    		 statement.execute(query);
+      		 query="CREATE INDEX ci ON Student(FIRSTNAME,LASTNAME)";
+    		 statement.execute(query);
+  
+    		 query="SHOW INDEX FROM Student";
+       		 rs=statement.executeQuery(query);
+       		 
+       		 while(rs.next())
+       		 {       			 
+       			 System.out.println("Key name:- "+rs.getString("Key_name"));
+       			 System.out.println("Column name:- "+rs.getString("Column_name"));
+       		 }
+    		 
+    		 break;
+    	 case 5:
+    		 System.out.println("Enter index to be dropped:-");
+    		 String ind=new String(obj.next());
+    		 if(ind=="si")
+    		 {
+    			 query="DROP INDEX si ON Student";
+    			 statement.executeUpdate(query);
+    		 }
+    		 else if(ind=="ui")
+    		 {
+    			 query="DROP INDEX ui ON Student";
+    			 statement.executeUpdate(query);
+    		 }
+    		 else if(ind=="ci")
+    		 {
+    			 query="DROP INDEX ci ON Student";
+    			 statement.executeUpdate(query);
+    		 }
+    		 query="SHOW INDEX FROM Student";
+       		 rs=statement.executeQuery(query);
+       		 
+       		 while(rs.next())
+       		 {       			 
+       			 System.out.println("Key name:- "+rs.getString("Key_name"));
+       			 System.out.println("Column name:- "+rs.getString("Column_name"));
+       		 }
+    		 
+    		 break;    		 
+    	 case 6:
+    		 query="DROP VIEW v1";
+    		 statement.execute(query);
+    		 break;    		 
+    	 case 7:
+    		 flag=0;
+    		 break;    		 
+    	 }	 
+     }
+    
+     conn.close();
+ }
+}
